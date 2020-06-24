@@ -1,0 +1,197 @@
+STEP 1 : Add dependency
+
+dependencies {
+  implementation 'androidx.recyclerview:recyclerview:1.2.0-alpha03'
+}
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+STEP 2 : Add recyclerView in activity_main.xml file
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+(Activity Layout recommendation : LinearLayout android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical")
+    
+<androidx.recyclerview.widget.RecyclerView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/rv_menu"
+    />
+    
+---------------------------------------------------------------------------------------------------------------------------------------------------------------    
+STEP 3 : Create model class MenuRecyclerModel.java and add following code
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+public class MenuRecyclerModel {
+
+    int id;
+    String menuitem;
+
+    public int getId() {        return id;    }
+
+    public void setId(int id) {        this.id = id;    }
+
+    public String getMenuitem() {        return menuitem;    }
+
+    public void setMenuitem(String menuitem) {        this.menuitem = menuitem;    }
+    
+}
+    
+---------------------------------------------------------------------------------------------------------------------------------------------------------------    
+STEP 4 : add following code in MainActivity.java
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import android.os.Bundle;
+import android.view.View;
+
+import java.util.ArrayList;
+
+public class MainActivity extends AppCompatActivity {
+
+    private RecyclerView rv_menu;
+    private ArrayList<MenuRecyclerModel> list;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        rv_menu = findViewById(R.id.rv_menu);
+        getDetails();
+        MenuRecyclerAdapter madapter = new MenuRecyclerAdapter(this,list);
+        rv_menu.setAdapter(madapter);
+        rv_menu.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false));
+        rv_menu.addItemDecoration(new DividerItemDecoration(this,DividerItemDecoration.VERTICAL));
+    }
+
+    private void getDetails() {
+    list = new ArrayList<>();
+    MenuRecyclerModel model = new MenuRecyclerModel();
+    model.setId(1);
+    model.setMenuitem("Image Slider");
+    list.add(model);
+
+    MenuRecyclerModel model1 = new MenuRecyclerModel();
+    model1.setId(2);
+    model1.setMenuitem("back arrow in ActionBar");
+    list.add(model1);
+
+    MenuRecyclerModel model2 = new MenuRecyclerModel();
+    model2.setId(3);
+    model2.setMenuitem("bottom Navigation wtih material design");
+    list.add(model2);
+
+    MenuRecyclerModel model3 = new MenuRecyclerModel();
+    model3.setId(4);
+    model3.setMenuitem("TabLayout + BadgeDrawable + ViewPager2");
+    list.add(model3);
+
+    MenuRecyclerModel model4 = new MenuRecyclerModel();
+    model4.setId(5);
+    model4.setMenuitem("MaterialTabLayout + BadgeDrawable + ViewPager2");
+    list.add(model4);
+    }
+}
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------    
+STEP 5 : Create interface ItemClickListener.java and add following code
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+import android.view.View;
+
+public interface ItemClickListener {
+
+    void onItemClickListener(View v,int position);
+
+}
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------    
+STEP 6 : Create adapter MenuRecyclerAdapter.java and add following code
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+import android.app.Activity;
+import android.content.Intent;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+import java.util.ArrayList;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+public class MenuRecyclerAdapter extends RecyclerView.Adapter<MenuRecyclerAdapter.MyViewHolder>{
+    private Activity mActivity;
+    private ArrayList<MenuRecyclerModel> list;
+
+    public MenuRecyclerAdapter(Activity mActivity, ArrayList<MenuRecyclerModel> list) {
+        this.mActivity = mActivity;
+        this.list = list;
+    }
+
+    @NonNull
+    @Override
+    public MenuRecyclerAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(mActivity).inflate(R.layout.layout_rv_menu,parent,false);
+        return new MyViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull MenuRecyclerAdapter.MyViewHolder holder, final int position) {
+        holder.tv_menu.setText(list.get(position).getMenuitem());
+        holder.setItemClickListener(new ItemClickListener() {
+            @Override
+            public void onItemClickListener(View v, int position) {
+                switch (position){
+                    case 0:
+                        mActivity.startActivity(new Intent(mActivity,ImageSliderActivity.class));
+                        break;
+                    case 1:
+                        mActivity.startActivity(new Intent(mActivity,BackActionbarActivity.class));
+                        break;
+                    case 2:
+                        mActivity.startActivity(new Intent(mActivity,BottomNavigationActivity.class));
+                        break;
+                    case 3:
+                        mActivity.startActivity(new Intent(mActivity,ViewpagerActivity.class));
+                        break;
+                    case 4:
+                        mActivity.startActivity(new Intent(mActivity,TablayoutMaterialActivity.class));
+                        break;
+                }
+            }
+        });
+    }
+
+    @Override
+    public int getItemCount() {
+        return list.size();
+    }
+
+    public class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        private final TextView tv_menu;
+        ItemClickListener itemClickListener;
+
+        public MyViewHolder(@NonNull View itemView) {
+            super(itemView);
+            tv_menu = itemView.findViewById(R.id.tv_menu);
+//            context = itemView.getContext();
+//            itemView.setClickable(true);
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            this.itemClickListener.onItemClickListener(v,getLayoutPosition());
+        }
+
+        public void setItemClickListener(ItemClickListener ic){
+            this.itemClickListener = ic ;
+        }
+    }
+}
